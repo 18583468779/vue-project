@@ -1,17 +1,24 @@
+import HomeViewVue from '@/views/HomeView.vue';
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LogIn from '../views/Login/LogIn.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView
+    component:HomeViewVue
+
+  },
+  {
+    path: '/shop/:id',
+    name: 'shop',
+    component: () => import(/* webpackChunkName: "page" */ '../views/Shop/ShopView'),
+
+
   },
   {
     path:'/login',
     name:'Login',
-    component: LogIn,
+    component: () => import(/* webpackChunkName: "LogIn" */ '../views/Login/LogIn'),
     beforeEnter: (to, from, next) => {
       const LoginUser = localStorage.LoginUser
       if(LoginUser){

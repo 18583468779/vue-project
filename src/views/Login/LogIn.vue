@@ -24,27 +24,23 @@ import Toast, { useToastEffect } from '../../components/Toast.vue';
 
 const useLoginEffect = (showToast) => {
     const router = useRouter();
-
     const data = reactive({
         username: '',
         password: '',
     });
-
     const handleSubmit = async () => {
         try {
             const result = await post('/api/user/login', { username: data.username, password: data.password });
             if (result.errno === 0) {
-                showToast('登录成功')
+                showToast('登录成功');
+                localStorage.setItem('LoginUser', true)
+                router.push({ name: 'Home' })
             } else {
                 showToast('登录失败')
-
             }
-            // localStorage.setItem('LoginUser', true)
-            // router.push({ name: 'Home' })
         } catch (error) {
             console.log(error)
         }
-
     }
     const { username, password } = toRefs(data);
     return { username, password, handleSubmit }

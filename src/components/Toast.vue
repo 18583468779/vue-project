@@ -26,10 +26,8 @@ export const useToastEffect = () => {
 
 export default {
     name: 'Toast',
-    props: ['message'],
-    setup() {
+    props: ['message']
 
-    }
 }
 </script>
 
