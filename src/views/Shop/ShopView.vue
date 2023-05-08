@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <div class="search">
-            <div class="search__back iconfont">
+            <div class="search__back iconfont" @click="handleBack">
                 &#xe6f2;
             </div>
             <div class="search__content">
@@ -10,25 +10,27 @@
             </div>
         </div>
         <ShopInfo :item="item" />
-        <!-- <Content :shopName="item.name" /> -->
-        <!-- <Cart /> -->
+        <ShopContent />
+        <shopCart />
     </div>
 </template>
 
 <script>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { get } from '@/lib/ajax';
 import { ref } from 'vue';
 import ShopInfo from '../../components/ShopInfo.vue'
-
+import ShopContent from '../Shop/ShopContent.vue'
+import shopCart from '../Shop/ShopCart.vue'
 
 export default {
     name: 'shop',
     components: {
-        ShopInfo
+        ShopInfo, ShopContent, shopCart
     },
     setup() {
         const { params } = useRoute();
+        const router = useRouter();
         const item = ref({})
         const getDataInfo = async () => {
             const result = await get(`/api/shop/${params.id}`)
@@ -37,7 +39,10 @@ export default {
         }
 
         getDataInfo();
-        return { item }
+        const handleBack = () => {
+            router.push({ name: 'Home' })
+        }
+        return { item, handleBack }
 
     }
 }
