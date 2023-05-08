@@ -19,9 +19,11 @@
                     </p>
                 </div>
                 <div class="product__number">
-                    <span class="product__number__minus iconfont">&#xe691;</span>
-                    0
-                    <span class="product__number__plus iconfont">&#xe668;</span>
+                    <span class="product__number__minus iconfont"
+                        @click="() => handleChangeCount(item._id, item, -1)">&#xe691;</span>
+                    {{ cartState?.[params.id]?.[item._id]?.count || 0 }}
+                    <span class="product__number__plus iconfont"
+                        @click="() => handleChangeCount(item._id, item, +1)">&#xe668;</span>
                 </div>
             </div>
         </div>
@@ -32,9 +34,9 @@
 
 
 import { get } from '@/lib/ajax';
-import { ref, watchEffect } from 'vue';
+import { ref, toRefs, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
-
+import { useStore } from 'vuex';
 
 const useCategoryEffect = () => {
     const { params } = useRoute();
@@ -54,19 +56,29 @@ const useCategoryEffect = () => {
         const result = await get(`/api/shop/${params.id}/products`, { tab: tab.value });
         if (result.errno == 0) {
             products.value = result.data;
-
         }
     }
-    return { changeCategory, getContentData, category, products }
+    return { changeCategory, getContentData, category, products, params }
+}
+
+const useCartEffect = (params) => {
+    //获取商品的数量
+    const store = useStore();
+    const handleChangeCount = (productId, item, change) => {
+        store.commit('changeCartState', { shopId: params.id, productId, item, change });
+    }
+    const { cartState } = toRefs(store.state);
+    return { cartState, handleChangeCount }
 }
 export default {
     name: 'shopContent',
     setup() {
-        const { changeCategory, getContentData, category, products } = useCategoryEffect()
+        const { changeCategory, getContentData, category, products, params } = useCategoryEffect()
         watchEffect(() => getContentData());
-
+        //cart
+        const { cartState, handleChangeCount } = useCartEffect(params);
         return {
-            category, changeCategory, products
+            category, changeCategory, products, handleChangeCount, cartState, params
         }
     }
 }
