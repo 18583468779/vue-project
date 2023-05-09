@@ -44,6 +44,14 @@ export default createStore({
       state.cartState[shopId] = shopInfo;
 
       }
+    },
+    changeCartAllClear(state,payload){
+      const {shopId} =payload;
+      let shopInfo = state.cartState[shopId];
+      if(shopInfo){
+        shopInfo = {};
+        state.cartState[shopId] = shopInfo;
+      }
     }
     
   },

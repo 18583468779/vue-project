@@ -9,10 +9,10 @@
                         全选
                     </div>
                     <div class="product__header__clear">
-                        <span class="product__header__clear__btn">清空购物车</span>
+                        <span class="product__header__clear__btn" @click="handleChangeClear">清空购物车</span>
                     </div>
                 </div>
-                <div class="product__item" v-for="item in total.productList" :key="item._id">
+                <div class="product__item" v-for="item in total.productList" :key="item._id" v-show="item.count !== 0">
                     <div class="product__item__checked iconfont" @click="() => handleChangeClick(item._id, item)"
                         v-html="item.checked ? '&#xe652;' : '&#xe667;'">
 
@@ -83,11 +83,34 @@ const useCartEffect = (store, params) => {
     return { total, cartState }
 }
 
-const useProductEffect = (store, params) => {
+const useProductEffect = (store, params, cartState) => {
     const handleChangeCount = (productId, item, change) => {
         store.commit('changeCartState', { shopId: params.id, productId, item, change });
     }
-    return { handleChangeCount }
+    const handleChangeClick = (productId, item) => {
+        store.commit('changeCartChecked', { shopId: params.id, productId, item })
+    }
+    const handleChangeAllChecked = () => {
+        store.commit('changeCartAllChecked', { shopId: params.id })
+    }
+    const handleChangeClear = () => {
+        store.commit('changeCartAllClear', { shopId: params.id })
+
+    }
+    const allChecked = computed(() => {
+        let productList = cartState[params.id];
+        let result = true;
+        if (productList) {
+            for (let i in productList) {
+                const product = productList[i];
+                if (product.count > 0 && !product.checked) {
+                    result = false;
+                }
+            }
+        }
+        return result;
+    });
+    return { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear }
 }
 
 
@@ -97,37 +120,9 @@ export default {
         const { params } = useRoute();
         const store = useStore();
         const { total, cartState } = useCartEffect(store, params)
-        const { handleChangeCount } = useProductEffect(store, params);
-
-
-        const handleChangeClick = (productId, item) => {
-            store.commit('changeCartChecked', { shopId: params.id, productId, item })
-        }
-
-        const handleChangeAllChecked = () => {
-            store.commit('changeCartAllChecked', { shopId: params.id })
-        }
-
-        const allChecked = computed(() => {
-            let productList = cartState[params.id];
-            let result = true;
-            if (productList) {
-                for (let i in productList) {
-                    const product = productList[i];
-                    if (product.count > 0 && !product.checked) {
-                        result = false;
-                    }
-
-                }
-            }
-
-            return result;
-        });
-
-
-
+        const { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear } = useProductEffect(store, params, cartState);
         return {
-            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked
+            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear
         }
     }
 
