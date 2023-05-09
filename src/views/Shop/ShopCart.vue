@@ -1,6 +1,42 @@
 <template>
     <div>
         <div class="cart">
+            <div>
+                <div class="product__header">
+                    <div class="product__header__all">
+                        <span class="product__header__icon iconfont" @click="handleChangeAllChecked"
+                            v-html="allChecked ? '&#xe652;' : '&#xe667;'"></span>
+                        全选
+                    </div>
+                    <div class="product__header__clear">
+                        <span class="product__header__clear__btn">清空购物车</span>
+                    </div>
+                </div>
+                <div class="product__item" v-for="item in total.productList" :key="item._id">
+                    <div class="product__item__checked iconfont" @click="() => handleChangeClick(item._id, item)"
+                        v-html="item.checked ? '&#xe652;' : '&#xe667;'">
+
+
+                    </div>
+                    <img class="product__item__img" :src="item.imgUrl" />
+                    <div class="product__item__detail">
+                        <h4 class="product__item__title">{{ item.name }}</h4>
+                        <p class="product__item__price">
+                            <span class="product__item__yen">&yen;</span>{{ item.price }}
+                            <span class="product__item__origin">&yen;{{ item.oldPrice }}</span>
+                        </p>
+                    </div>
+                    <div class="product__number">
+                        <span class="product__number__minus iconfont"
+                            @click="() => handleChangeCount(item._id, item, -1)">&#xe691;</span>
+                        {{ item.count || 0 }}
+                        <span class="product__number__plus iconfont"
+                            @click="() => handleChangeCount(item._id, item, 1)">&#xe668;</span>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="check">
                 <div class="check__icon">
                     <img src="http://www.dell-lee.com/imgs/vue3/basket.png" class="check__icon__img" />
@@ -20,36 +56,78 @@
 </template>
 
 <script>
-import { toRefs, computed } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
+
+const useCartEffect = (store, params) => {
+    const { cartState } = store.state
+    const total = computed(() => {
+        let productList = cartState[params.id];
+        let count = 0;
+        let price = 0;
+        if (productList) {
+            for (let i in productList) {
+                const product = productList[i];
+                count += product.count;
+                if (product.checked) {
+                    price += (product.count * product.price);
+                }
+            }
+        }
+        if (count >= 99) {
+            count = '99+'
+        }
+        return { count, price, productList }
+    });
+    return { total, cartState }
+}
+
+const useProductEffect = (store, params) => {
+    const handleChangeCount = (productId, item, change) => {
+        store.commit('changeCartState', { shopId: params.id, productId, item, change });
+    }
+    return { handleChangeCount }
+}
+
+
 export default {
     name: 'shopCart',
     setup() {
-        const store = useStore();
-        const { cartState } = store.state
         const { params } = useRoute();
-        const total = computed(() => {
+        const store = useStore();
+        const { total, cartState } = useCartEffect(store, params)
+        const { handleChangeCount } = useProductEffect(store, params);
+
+
+        const handleChangeClick = (productId, item) => {
+            store.commit('changeCartChecked', { shopId: params.id, productId, item })
+        }
+
+        const handleChangeAllChecked = () => {
+            store.commit('changeCartAllChecked', { shopId: params.id })
+        }
+
+        const allChecked = computed(() => {
             let productList = cartState[params.id];
-            let count = 0;
-            let price = 0;
+            let result = true;
             if (productList) {
                 for (let i in productList) {
                     const product = productList[i];
-                    count += product.count;
-                    price += (product.count * product.price);
+                    if (product.count > 0 && !product.checked) {
+                        result = false;
+                    }
 
                 }
             }
 
-            if (count >= 99) {
-                return '99+'
-            }
-            return { count, price }
-
+            return result;
         });
+
+
+
         return {
-            cartState, total
+            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked
         }
     }
 
