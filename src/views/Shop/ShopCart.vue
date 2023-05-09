@@ -4,13 +4,13 @@
             <div class="check">
                 <div class="check__icon">
                     <img src="http://www.dell-lee.com/imgs/vue3/basket.png" class="check__icon__img" />
-                    <div class="check__icon__tag">1231</div>
+                    <div class="check__icon__tag">{{ total.count || 0 }}</div>
                 </div>
                 <div class="check__info">
-                    总计：<span class="check__info__price">&yen; 123123</span>
+                    总计：<span class="check__info__price">&yen; {{ total.price.toFixed(2) || 0 }}</span>
                 </div>
                 <div class="check__btn">
-                    <router-link :to="{ path: `/Home` }">
+                    <router-link :to="{ path: `/` }">
                         去结算
                     </router-link>
                 </div>
@@ -20,8 +20,38 @@
 </template>
 
 <script>
+import { toRefs, computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 export default {
     name: 'shopCart',
+    setup() {
+        const store = useStore();
+        const { cartState } = store.state
+        const { params } = useRoute();
+        const total = computed(() => {
+            let productList = cartState[params.id];
+            let count = 0;
+            let price = 0;
+            if (productList) {
+                for (let i in productList) {
+                    const product = productList[i];
+                    count += product.count;
+                    price += (product.count * product.price);
+
+                }
+            }
+
+            if (count >= 99) {
+                return '99+'
+            }
+            return { count, price }
+
+        });
+        return {
+            cartState, total
+        }
+    }
 
 }
 </script>
