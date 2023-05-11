@@ -1,7 +1,8 @@
 <template>
     <div>
+        <div class="mask" @click="handleCartShowChange" v-if="cartShow" />
         <div class="cart">
-            <div>
+            <div v-if="cartShow">
                 <div class="product__header">
                     <div class="product__header__all">
                         <span class="product__header__icon iconfont" @click="handleChangeAllChecked"
@@ -38,7 +39,7 @@
 
 
             <div class="check">
-                <div class="check__icon">
+                <div class="check__icon" @click="handleCartShowChange">
                     <img src="http://www.dell-lee.com/imgs/vue3/basket.png" class="check__icon__img" />
                     <div class="check__icon__tag">{{ total.count || 0 }}</div>
                 </div>
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 
@@ -121,8 +122,12 @@ export default {
         const store = useStore();
         const { total, cartState } = useCartEffect(store, params)
         const { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear } = useProductEffect(store, params, cartState);
+        const cartShow = ref(false);
+        const handleCartShowChange = () => {
+            cartShow.value = !cartShow.value
+        }
         return {
-            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear
+            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear, handleCartShowChange, cartShow
         }
     }
 

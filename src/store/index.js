@@ -41,7 +41,7 @@ export default createStore({
           const product = shopInfo[item]
           product.checked = true;
         }
-      state.cartState[shopId] = shopInfo;
+        state.cartState[shopId] = shopInfo;
 
       }
     },
