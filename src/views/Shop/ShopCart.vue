@@ -111,7 +111,11 @@ const useProductEffect = (store, params, cartState) => {
         }
         return result;
     });
-    return { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear }
+    const cartShow = ref(false);
+    const handleCartShowChange = () => {
+        cartShow.value = !cartShow.value
+    }
+    return { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear, cartShow, handleCartShowChange }
 }
 
 
@@ -121,13 +125,12 @@ export default {
         const { params } = useRoute();
         const store = useStore();
         const { total, cartState } = useCartEffect(store, params)
-        const { handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear } = useProductEffect(store, params, cartState);
-        const cartShow = ref(false);
-        const handleCartShowChange = () => {
-            cartShow.value = !cartShow.value
-        }
+        const { handleChangeCount, handleChangeClick, handleChangeAllChecked,
+            allChecked, handleChangeClear, handleCartShowChange, cartShow } = useProductEffect(store, params, cartState);
+
         return {
-            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked, allChecked, handleChangeClear, handleCartShowChange, cartShow
+            cartState, total, handleChangeCount, handleChangeClick, handleChangeAllChecked,
+            allChecked, handleChangeClear, handleCartShowChange, cartShow
         }
     }
 
